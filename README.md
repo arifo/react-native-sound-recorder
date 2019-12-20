@@ -2,6 +2,8 @@
 # react-native-sound-recorder
 
 No-hassle Sound Recorder for React Native.
+Add sound level tracking for android(Because on Android you can not exclude 2 instance of MediaRecorder)
+Credit https://github.com/punarinta/react-native-sound-level
 
 #### There are existing libraries out in the wild
 
