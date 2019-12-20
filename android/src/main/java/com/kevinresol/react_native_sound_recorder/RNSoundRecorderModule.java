@@ -10,6 +10,9 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import java.util.Timer;
+import java.util.TimerTask;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,6 +30,8 @@ public class RNSoundRecorderModule extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
   private MediaRecorder mRecorder = null;
   private String mOutput = null;
+  private Timer timer;
+  private int frameId = 0;
 
   private static final String OPTION_KEY_SOURCE = "source";
   private static final String OPTION_KEY_FORMAT = "format";
@@ -164,7 +169,9 @@ public class RNSoundRecorderModule extends ReactContextBaseJavaModule {
     try {
       mRecorder.prepare();
       mRecorder.start();
-      promise.resolve(null);
+      frameId = 0;
+      startTimer();
+      promise.resolve(true);
     } catch (IOException e) {
       promise.reject("recording_failed", "Cannot record audio at path: " + path);
     } catch (IllegalStateException e) {
@@ -178,6 +185,8 @@ public class RNSoundRecorderModule extends ReactContextBaseJavaModule {
       promise.reject("not_recording", "Not Recording");
       return;
     }
+
+    stopTimer();
 
     try {
       mRecorder.stop();
@@ -235,6 +244,43 @@ public class RNSoundRecorderModule extends ReactContextBaseJavaModule {
       promise.reject("resuming_failed", "Resume failed: " + e);
     }
 
+  }
+
+  private void startTimer() {
+    timer = new Timer();
+    timer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+
+          WritableMap body = Arguments.createMap();
+          body.putDouble("id", frameId++);
+
+          int amplitude = mRecorder.getMaxAmplitude();
+          if (amplitude == 0) {
+            body.putInt("value", -160);
+            body.putInt("rawValue", 0);
+          } else {
+            body.putInt("rawValue", amplitude);
+            body.putInt("value", (int) (20 * Math.log(((double) amplitude) / 32767d)));
+          }
+
+          sendEvent("emitRecord", body);
+      }
+    }, 0, 250);
+  }
+
+  private void stopTimer() {
+    if (timer != null) {
+      timer.cancel();
+      timer.purge();
+      timer = null;
+    }
+  }
+
+  private void sendEvent(String eventName, Object params) {
+    getReactApplicationContext()
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+            .emit(eventName, params);
   }
 
 
