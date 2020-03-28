@@ -132,39 +132,40 @@ public class RNSoundRecorderModule extends ReactContextBaseJavaModule {
 
   private void startRecording(String path, ReadableMap options, Promise promise) {
     // parse options
-    int source = MediaRecorder.AudioSource.DEFAULT;
-    if(options.hasKey(OPTION_KEY_SOURCE))
-      source = options.getInt(OPTION_KEY_SOURCE);
+    // int source = MediaRecorder.AudioSource.DEFAULT;
+    // if(options.hasKey(OPTION_KEY_SOURCE))
+    //   source = options.getInt(OPTION_KEY_SOURCE);
 
-    int format = MediaRecorder.OutputFormat.DEFAULT;
-    if(options.hasKey(OPTION_KEY_FORMAT))
-      format = options.getInt(OPTION_KEY_FORMAT);
+    // int format = MediaRecorder.OutputFormat.DEFAULT;
+    // if(options.hasKey(OPTION_KEY_FORMAT))
+    //   format = options.getInt(OPTION_KEY_FORMAT);
 
-    int channels = 1;
-    if(options.hasKey(OPTION_KEY_CHANNELS))
-      channels = options.getInt(OPTION_KEY_CHANNELS);
+    // int channels = 1;
+    // if(options.hasKey(OPTION_KEY_CHANNELS))
+    //   channels = options.getInt(OPTION_KEY_CHANNELS);
 
-    int encodingBitRate = 64000;
-    if(options.hasKey(OPTION_KEY_ENCODING_BIT_RATE))
-      encodingBitRate = options.getInt(OPTION_KEY_ENCODING_BIT_RATE);
+    // int encodingBitRate = 64000;
+    // if(options.hasKey(OPTION_KEY_ENCODING_BIT_RATE))
+    //   encodingBitRate = options.getInt(OPTION_KEY_ENCODING_BIT_RATE);
 
-    int encoder = MediaRecorder.AudioEncoder.DEFAULT;
-    if(options.hasKey(OPTION_KEY_ENCODER))
-      encoder = options.getInt(OPTION_KEY_ENCODER);
+    // int encoder = MediaRecorder.AudioEncoder.DEFAULT;
+    // if(options.hasKey(OPTION_KEY_ENCODER))
+    //   encoder = options.getInt(OPTION_KEY_ENCODER);
 
-    int sampleRate = 16000;
-    if(options.hasKey(OPTION_KEY_SAMPLE_RATE))
-      sampleRate = options.getInt(OPTION_KEY_SAMPLE_RATE);
+    // int sampleRate = 16000;
+    // if(options.hasKey(OPTION_KEY_SAMPLE_RATE))
+    //   sampleRate = options.getInt(OPTION_KEY_SAMPLE_RATE);
 
     mOutput = path;
     mRecorder = new MediaRecorder();
-    mRecorder.setAudioSource(source);
-    mRecorder.setOutputFormat(format);
-    mRecorder.setAudioChannels(channels);
+
+    mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+    mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+    mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+    mRecorder.setAudioChannels(1);
+    mRecorder.setAudioEncodingBitRate(256000);
+    mRecorder.setAudioSamplingRate(16000);
     mRecorder.setOutputFile(path);
-    mRecorder.setAudioEncodingBitRate(encodingBitRate);
-    mRecorder.setAudioEncoder(encoder);
-    mRecorder.setAudioSamplingRate(sampleRate);
 
     try {
       mRecorder.prepare();
